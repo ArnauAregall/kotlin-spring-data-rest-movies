@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: kotlin-spring-data-rest-movies
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/lab?currentSchema=${spring.application.name}
+    username: postgres
+    password: postgrespw
+    driver-class-name: org.postgresql.Driver
+
+  data:
+    rest:
+      base-path: /api/
+      detection-strategy: annotated
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+  sql:
+    init:
+      mode: always
