@@ -1,5 +1,3 @@
-CREATE SCHEMA IF NOT EXISTS "kotlin-spring-data-rest-movies";
-
 SET SEARCH_PATH TO "kotlin-spring-data-rest-movies";
 
 CREATE TABLE IF NOT EXISTS "actor" (
