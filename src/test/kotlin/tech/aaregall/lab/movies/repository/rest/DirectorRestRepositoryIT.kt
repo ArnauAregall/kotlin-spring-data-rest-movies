@@ -6,6 +6,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.*
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,10 +30,11 @@ class DirectorRestRepositoryIT(
     @Autowired val directorRestRepository: DirectorRestRepository) : AbstractIT() {
 
     @Nested
-    inner class GET {
+    @DisplayName("GET $BASE_PATH")
+    inner class Get {
 
         @Test
-        fun `Should GET Directors paginated` () {
+        fun `Should Get Directors paginated` () {
             val directors = IntStream.rangeClosed(1, 50)
                 .mapToObj {index -> directorRestRepository.save(
                     Director( "FirstName $index", "LastName $index")
@@ -62,7 +64,7 @@ class DirectorRestRepositoryIT(
         }
 
         @Test
-        fun `Should GET a Director by ID` () {
+        fun `Should Get a Director by ID` () {
             val director = directorRestRepository.save(Director("Terence", "Young"))
 
             mockMvc.perform(get("${BASE_PATH}/${director.id}")
@@ -83,7 +85,8 @@ class DirectorRestRepositoryIT(
     }
 
     @Nested
-    inner class POST {
+    @DisplayName("POST $BASE_PATH")
+    inner class Post {
 
         @Test
         fun `Should Create a Director` () {
@@ -113,10 +116,11 @@ class DirectorRestRepositoryIT(
     }
 
     @Nested
-    inner class PATCH {
+    @DisplayName("PATCH $BASE_PATH/\$id")
+    inner class Patch {
 
         @Test
-        fun `Should PATCH a Director` () {
+        fun `Should Patch a Director by ID` () {
             val director = directorRestRepository.save(Director("Martine", "Campbelly"))
 
             mockMvc.perform(patch("${BASE_PATH}/${director.id}")
@@ -137,10 +141,11 @@ class DirectorRestRepositoryIT(
     }
 
     @Nested
-    inner class DELETE {
+    @DisplayName("DELETE $BASE_PATH/\$id")
+    inner class Delete {
 
         @Test
-        fun `Should DELETE a Director` () {
+        fun `Should Delete a Director by ID` () {
             val director = directorRestRepository.save(Director("John", "Glen"))
 
             mockMvc.perform(delete("${BASE_PATH}/${director.id}"))
