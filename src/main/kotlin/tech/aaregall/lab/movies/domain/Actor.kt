@@ -8,7 +8,7 @@ import java.util.Objects
 
 @Entity
 @Table(name = "actor")
-data class Actor (
+class Actor (
 
     @NotNull
     @Column(name = "first_name")

@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 @Entity
 @Table(name = "movie")
-data class Movie (
+class Movie (
 
     @NotNull
     @Column(name = "title")

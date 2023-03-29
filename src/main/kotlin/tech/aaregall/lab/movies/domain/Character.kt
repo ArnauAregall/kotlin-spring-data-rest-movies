@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull
 
 @Entity
 @Table(name = "character")
-data class Character (
+class Character (
 
     @NotNull
     @Column(name = "name")
