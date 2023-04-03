@@ -1,0 +1,22 @@
+version: '1'
+services:
+  rest-api:
+    image: tech.aaregall.lab/kotlin-spring-data-rest-movies:latest
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/lab
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgrespw
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
