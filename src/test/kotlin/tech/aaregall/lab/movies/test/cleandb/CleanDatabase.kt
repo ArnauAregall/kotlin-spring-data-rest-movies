@@ -10,10 +10,10 @@ import javax.sql.DataSource
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@ExtendWith(CleanDbExtension::class)
-annotation class CleanDb
+@ExtendWith(CleanDatabaseCallback::class)
+annotation class CleanDatabase
 
-private class CleanDbExtension : BeforeEachCallback {
+private class CleanDatabaseCallback : BeforeEachCallback {
 
     override fun beforeEach(context: ExtensionContext) {
         val dataSource = SpringExtension.getApplicationContext(context).getBean(DataSource::class.java)

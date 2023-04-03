@@ -3,27 +3,24 @@ package tech.aaregall.lab.movies.repository.rest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.Assertions.assertThat
-import org.hamcrest.Matcher
-import org.hamcrest.Matchers
 import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON
-import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import tech.aaregall.lab.movies.AbstractIT
 import tech.aaregall.lab.movies.domain.Director
-import tech.aaregall.lab.movies.test.cleandb.CleanDb
+import tech.aaregall.lab.movies.test.cleandb.CleanDatabase
+import tech.aaregall.lab.movies.test.matchers.streamToIsMatcher
 import java.util.stream.IntStream
-import java.util.stream.Stream
 
-const val BASE_PATH = "/api/directors"
+private const val BASE_PATH = "/api/directors"
 
-@CleanDb
+@CleanDatabase
 class DirectorRestRepositoryIT(
     @Autowired val mockMvc: MockMvc,
     @Autowired val objectMapper: ObjectMapper,
@@ -46,15 +43,18 @@ class DirectorRestRepositoryIT(
                 .param("page", "0")
                 .param("size", directors.size.toString()))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpectAll(
                     jsonPath("$._embedded.directors.length()").value(directors.size),
                     jsonPath("$._embedded.directors[*].id",
-                        containsInAnyOrder(streamToIsMatcher(directors.stream().map{ it.id.toInt() }))),
+                        containsInAnyOrder(streamToIsMatcher(directors.stream().map{ it.id.toInt() }))
+                    ),
                     jsonPath("$._embedded.directors[*].first_name",
-                        containsInAnyOrder(streamToIsMatcher(directors.stream().map(Director::firstName)))),
+                        containsInAnyOrder(streamToIsMatcher(directors.stream().map(Director::firstName)))
+                    ),
                     jsonPath("$._embedded.directors[*].last_name",
-                        containsInAnyOrder(streamToIsMatcher(directors.stream().map(Director::lastName)))),
+                        containsInAnyOrder(streamToIsMatcher(directors.stream().map(Director::lastName)))
+                    ),
                     jsonPath("$.page").isNotEmpty,
                     jsonPath("$.page.size").value(directors.size),
                     jsonPath("$.page.total_elements").value(directors.size),
@@ -70,7 +70,7 @@ class DirectorRestRepositoryIT(
             mockMvc.perform(get("${BASE_PATH}/${director.id}")
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(director.id.toInt()),
                     jsonPath("$.first_name").value(director.firstName),
@@ -97,7 +97,7 @@ class DirectorRestRepositoryIT(
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(director)))
                 .andExpect(status().isCreated)
-                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(notNullValue()),
                     jsonPath("$.first_name").value(director.firstName),
@@ -130,7 +130,7 @@ class DirectorRestRepositoryIT(
                 {"first_name": "Martin", "last_name": "Campbell"}
                 """.trimIndent()))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+                .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(director.id.toInt()),
                     jsonPath("$.first_name").value("Martin"),
@@ -156,9 +156,5 @@ class DirectorRestRepositoryIT(
 
     }
 
-}
-
-fun <T> streamToIsMatcher(stream: Stream<T>): Collection<Matcher<in T?>>? {
-    return stream.map(Matchers::`is`).toList()
 }
 
