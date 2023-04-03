@@ -1,8 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 plugins {
 	id("org.springframework.boot") version "3.1.0-SNAPSHOT"
 	id("io.spring.dependency-management") version "1.1.0"
+	id("org.graalvm.buildtools.native") version "0.9.20"
 	kotlin("jvm") version "1.8.10"
 	kotlin("plugin.spring") version "1.8.10"
 	kotlin("plugin.jpa") version "1.8.10"
@@ -28,8 +30,6 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("io.github.oshai:kotlin-logging-jvm:4.0.0-beta-22")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("org.postgresql:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.testcontainers:junit-jupiter")
@@ -51,4 +51,10 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.withType<BootBuildImage> {
+	imageName.set("${project.group}/${rootProject.name}")
+	// distro-less image for GraalVM that supports ARM64 arch https://github.com/dashaun/paketo-arm64
+	builder.set("dashaun/builder:tiny")
 }
