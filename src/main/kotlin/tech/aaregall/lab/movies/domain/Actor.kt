@@ -1,10 +1,18 @@
 package tech.aaregall.lab.movies.domain
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.JoinTable
+import jakarta.persistence.ManyToMany
+import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
 import java.time.LocalDate
-import java.util.Objects
+import java.util.Objects.isNull
 
 @Entity
 @Table(name = "actor")
@@ -37,9 +45,9 @@ class Actor (
         joinColumns = [JoinColumn(name = "actor_id")],
         inverseJoinColumns = [JoinColumn(name = "character_id")]
     )
-    lateinit var characters: Collection<Character>
+    var characters: Collection<Character>? = emptyList()
 
     @JsonProperty("is_alive")
-    private fun isAlive(): Boolean = Objects.isNull(deathDate)
+    private fun isAlive(): Boolean = isNull(deathDate)
 
 }
