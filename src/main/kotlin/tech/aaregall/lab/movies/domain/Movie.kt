@@ -21,7 +21,7 @@ class Movie (
     @ManyToOne
     @JoinColumn(name = "director_id")
     @RestResource(path = "director")
-    var director: Director,
+    var director: Director
 
 ) {
 

@@ -19,7 +19,7 @@ class Director (
 
     @NotNull
     @Column(name = "last_name")
-    var lastName: String,
+    var lastName: String
 
 ) {
 

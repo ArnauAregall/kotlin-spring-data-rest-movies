@@ -31,7 +31,7 @@ class Actor (
     var birthDate: LocalDate,
 
     @Column(name = "death_date")
-    var deathDate: LocalDate?,
+    var deathDate: LocalDate?
 
 ) {
 
