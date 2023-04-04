@@ -1,27 +1,25 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
-plugins {
-	id("org.springframework.boot") version "3.1.0-SNAPSHOT"
-	id("io.spring.dependency-management") version "1.1.0"
-	id("org.graalvm.buildtools.native") version "0.9.20"
-	id("org.jetbrains.kotlin.plugin.allopen") version "1.8.20"
-	kotlin("jvm") version "1.8.20"
-	kotlin("plugin.spring") version "1.8.20"
-	kotlin("plugin.jpa") version "1.8.20"
-}
-
 group = "tech.aaregall.lab"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
+
+plugins {
+	id("org.springframework.boot")
+	id("io.spring.dependency-management")
+	id("org.graalvm.buildtools.native")
+	id("org.jetbrains.kotlin.plugin.allopen")
+	kotlin("jvm")
+	kotlin("plugin.spring")
+	kotlin("plugin.jpa")
+}
 
 repositories {
 	mavenCentral()
 	maven { url = uri("https://repo.spring.io/milestone") }
 	maven { url = uri("https://repo.spring.io/snapshot") }
 }
-
-extra["testcontainersVersion"] = "1.17.6"
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-rest")
