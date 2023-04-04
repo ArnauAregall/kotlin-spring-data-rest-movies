@@ -28,5 +28,5 @@ class Director (
     var id: Long = -1
 
     @OneToMany(mappedBy = "director")
-    var movies: Collection<Movie>? = emptyList()
+    var movies: Collection<Movie>? = mutableListOf()
 }

@@ -36,5 +36,5 @@ class Movie (
         inverseJoinColumns = [JoinColumn(name = "character_id")]
     )
     @RestResource(path = "characters")
-    var characters: Collection<Character>? = emptyList()
+    var characters: Collection<Character>? = mutableListOf()
 }

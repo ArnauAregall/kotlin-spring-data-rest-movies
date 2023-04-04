@@ -45,7 +45,7 @@ class Actor (
         joinColumns = [JoinColumn(name = "actor_id")],
         inverseJoinColumns = [JoinColumn(name = "character_id")]
     )
-    var characters: Collection<Character>? = emptyList()
+    var characters: Collection<Character>? = mutableListOf()
 
     @JsonProperty("is_alive")
     private fun isAlive(): Boolean = isNull(deathDate)

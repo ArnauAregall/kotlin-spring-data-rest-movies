@@ -26,7 +26,7 @@ class Character (
     var id: Long = -1
 
     @ManyToMany(mappedBy = "characters")
-    var actors: Collection<Actor>? = emptyList()
+    var actors: Collection<Actor>? = mutableListOf()
 
     @ManyToMany
     @JoinTable(
@@ -34,6 +34,6 @@ class Character (
         joinColumns = [JoinColumn(name = "character_id")],
         inverseJoinColumns = [JoinColumn(name = "movie_id")]
     )
-    var movies: Collection<Movie>? = emptyList()
+    var movies: Collection<Movie>? = mutableListOf()
 
 }
