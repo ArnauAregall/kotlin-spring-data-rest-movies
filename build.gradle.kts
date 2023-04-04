@@ -5,6 +5,7 @@ plugins {
 	id("org.springframework.boot") version "3.1.0-SNAPSHOT"
 	id("io.spring.dependency-management") version "1.1.0"
 	id("org.graalvm.buildtools.native") version "0.9.20"
+	id("org.jetbrains.kotlin.plugin.allopen") version "1.8.20"
 	kotlin("jvm") version "1.8.20"
 	kotlin("plugin.spring") version "1.8.20"
 	kotlin("plugin.jpa") version "1.8.20"
@@ -57,4 +58,8 @@ tasks.withType<BootBuildImage> {
 	imageName.set("${project.group}/${rootProject.name}")
 	// distro-less image for GraalVM that supports ARM64 arch https://github.com/dashaun/paketo-arm64
 	builder.set("dashaun/builder:tiny")
+}
+
+allOpen {
+	annotation("jakarta.persistence.Entity")
 }
