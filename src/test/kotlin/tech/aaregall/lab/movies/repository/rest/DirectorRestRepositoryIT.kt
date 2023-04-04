@@ -10,10 +10,10 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.hateoas.MediaTypes.HAL_JSON
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
@@ -46,11 +46,11 @@ class DirectorRestRepositoryIT(
                 .toList()
 
             mockMvc.perform(get(BASE_PATH)
-                .accept(APPLICATION_JSON)
+                .accept(HAL_JSON)
                 .param("page", "0")
                 .param("size", directors.size.toString()))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$._embedded.directors.length()").value(directors.size),
                     jsonPath("$._embedded.directors[*].id",
@@ -75,9 +75,9 @@ class DirectorRestRepositoryIT(
             val director = directorRestRepository.save(Director("Terence", "Young"))
 
             mockMvc.perform(get("${BASE_PATH}/${director.id}")
-                .accept(APPLICATION_JSON))
+                .accept(HAL_JSON))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(director.id!!.toInt()),
                     jsonPath("$.first_name").value(director.firstName),
@@ -100,11 +100,10 @@ class DirectorRestRepositoryIT(
             val director = Director("Terence", "Young")
 
             val result = mockMvc.perform(post(BASE_PATH)
-                .accept(APPLICATION_JSON)
-                .contentType(APPLICATION_JSON)
+                .accept(HAL_JSON)
                 .content(objectMapper.writeValueAsString(director)))
                 .andExpect(status().isCreated)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(notNullValue()),
                     jsonPath("$.first_name").value(director.firstName),
@@ -131,13 +130,12 @@ class DirectorRestRepositoryIT(
             val director = directorRestRepository.save(Director("Martine", "Campbelly"))
 
             mockMvc.perform(patch("${BASE_PATH}/${director.id}")
-                .accept(APPLICATION_JSON)
-                .contentType(APPLICATION_JSON)
+                .accept(HAL_JSON)
                 .content("""
                 {"first_name": "Martin", "last_name": "Campbell"}
                 """.trimIndent()))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(director.id!!.toInt()),
                     jsonPath("$.first_name").value("Martin"),

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.hateoas.MediaTypes.HAL_JSON
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -48,11 +48,11 @@ class MovieRestRepositoryIT(
                 .toList()
 
             mockMvc.perform(get(BASE_PATH)
-                .accept(APPLICATION_JSON)
+                .accept(HAL_JSON)
                 .param("page", "0")
                 .param("size", movies.size.toString()))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$._embedded.movies.length()").value(movies.size),
                     jsonPath("$._embedded.movies[*].id",
@@ -78,9 +78,9 @@ class MovieRestRepositoryIT(
             val movie = movieRestRepository.save(Movie("From Russia With Love", LocalDate.of(1964, 9, 12), director))
 
             mockMvc.perform(get("${BASE_PATH}/${movie.id}")
-                .accept(APPLICATION_JSON))
+                .accept(HAL_JSON))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(movie.id!!.toInt()),
                     jsonPath("$.title").value(movie.title),
@@ -109,13 +109,12 @@ class MovieRestRepositoryIT(
                 mockMvc.perform(get("/api/directors/${director.id}")).andReturn().response.contentAsString, "$._links.self.href")
 
             val result = mockMvc.perform(post(BASE_PATH)
-                .accept(APPLICATION_JSON)
-                .contentType(APPLICATION_JSON)
+                .accept(HAL_JSON)
                 .content("""
                 {"title": "${movie.title}", "release_date":  "${movie.releaseDate}", "director": "$directorLink"}
                 """.trimIndent()))
                 .andExpect(status().isCreated)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(notNullValue()),
                     jsonPath("$.title").value(movie.title),
@@ -147,13 +146,13 @@ class MovieRestRepositoryIT(
             val movie = movieRestRepository.save(Movie("No time to live", LocalDate.of(2021, 10, 1), director))
 
             mockMvc.perform(patch("${BASE_PATH}/${movie.id}")
-                .accept(APPLICATION_JSON)
-                .contentType(APPLICATION_JSON)
+                .accept(HAL_JSON)
+                .contentType(HAL_JSON)
                 .content("""
                 {"title": "No Time To Die"}
                 """.trimIndent()))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(movie.id!!.toInt()),
                     jsonPath("$.title").value("No Time To Die")

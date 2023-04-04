@@ -10,7 +10,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.hateoas.MediaTypes.HAL_JSON
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -46,11 +46,11 @@ class CharacterRestRepositoryIT(
                 .toList()
 
             mockMvc.perform(get(BASE_PATH)
-                .accept(APPLICATION_JSON)
+                .accept(HAL_JSON)
                 .param("page", "0")
                 .param("size", characters.size.toString()))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$._embedded.characters.length()").value(characters.size),
                     jsonPath("$._embedded.characters[*].id",
@@ -72,9 +72,9 @@ class CharacterRestRepositoryIT(
             val character = characterRestRepository.save(Character("James Bond"))
 
             mockMvc.perform(get("${BASE_PATH}/${character.id}")
-                .accept(APPLICATION_JSON))
+                .accept(HAL_JSON))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(character.id!!.toInt()),
                     jsonPath("$.name").value(character.name),
@@ -97,11 +97,10 @@ class CharacterRestRepositoryIT(
             val character = Character("Jaws")
 
             val result = mockMvc.perform(post(BASE_PATH)
-                .accept(APPLICATION_JSON)
-                .contentType(APPLICATION_JSON)
+                .accept(HAL_JSON)
                 .content(objectMapper.writeValueAsString(character)))
                 .andExpect(status().isCreated)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(notNullValue()),
                     jsonPath("$.name").value(character.name)
@@ -126,13 +125,12 @@ class CharacterRestRepositoryIT(
             val character = characterRestRepository.save(Character("Aurik Silverfinger"))
 
             mockMvc.perform(patch("${BASE_PATH}/${character.id}")
-                .accept(APPLICATION_JSON)
-                .contentType(APPLICATION_JSON)
+                .accept(HAL_JSON)
                 .content("""
                 {"name": "Auric Goldfinger"}
                 """.trimIndent()))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(character.id!!.toInt()),
                     jsonPath("$.name").value("Auric Goldfinger")

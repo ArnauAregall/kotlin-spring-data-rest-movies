@@ -11,7 +11,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.hateoas.MediaTypes.HAL_JSON
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -48,11 +48,11 @@ class ActorRestRepositoryIT (
                 .toList()
 
             mockMvc.perform(get(BASE_PATH)
-                .accept(APPLICATION_JSON)
+                .accept(HAL_JSON)
                 .param("page", "0")
                 .param("size", actors.size.toString()))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$._embedded.actors.length()").value(actors.size),
                     jsonPath("$._embedded.actors[*].id",
@@ -78,9 +78,9 @@ class ActorRestRepositoryIT (
                 LocalDate.of(1930, 8, 25), LocalDate.of(2020, 10, 31)))
 
             mockMvc.perform(get("${BASE_PATH}/${actor.id}")
-                .accept(APPLICATION_JSON))
+                .accept(HAL_JSON))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(actor.id!!.toInt()),
                     jsonPath("$.first_name").value(actor.firstName),
@@ -106,11 +106,11 @@ class ActorRestRepositoryIT (
             val actor = Actor("Daniel", "Craig", LocalDate.of(1968, 3, 2), null)
 
             val result = mockMvc.perform(post(BASE_PATH)
-                .accept(APPLICATION_JSON)
-                .contentType(APPLICATION_JSON)
+                .accept(HAL_JSON)
+                .contentType(HAL_JSON)
                 .content(objectMapper.writeValueAsString(actor)))
                 .andExpect(status().isCreated)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(notNullValue()),
                     jsonPath("$.first_name").value(actor.firstName),
@@ -139,13 +139,12 @@ class ActorRestRepositoryIT (
             val actor = actorRestRepository.save(Actor("Pierse", "Bronan", LocalDate.of(1953, 5, 18), LocalDate.now()))
 
             mockMvc.perform(patch("${BASE_PATH}/${actor.id}")
-                .accept(APPLICATION_JSON)
-                .contentType(APPLICATION_JSON)
+                .accept(HAL_JSON)
                 .content("""
                 {"first_name": "Pierce", "last_name": "Brosnan", "birth_date": "1953-05-16", "death_date": null}
                 """.trimIndent()))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(APPLICATION_JSON))
+                .andExpect(content().contentType(HAL_JSON))
                 .andExpectAll(
                     jsonPath("$.id").value(actor.id!!.toInt()),
                     jsonPath("$.first_name").value("Pierce"),
