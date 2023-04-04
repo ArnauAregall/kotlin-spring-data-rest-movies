@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 @Entity
 @Table(name = "movie")
-open class Movie (
+class Movie (
 
     @NotNull
     @Column(name = "title")
@@ -36,5 +36,5 @@ open class Movie (
         inverseJoinColumns = [JoinColumn(name = "character_id")]
     )
     @RestResource(path = "characters")
-    open var characters: MutableSet<Character>? = mutableSetOf()
+    var characters: MutableSet<Character>? = mutableSetOf()
 }

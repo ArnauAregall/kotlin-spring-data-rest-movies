@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotNull
 
 @Entity
 @Table(name = "director")
-open class Director (
+class Director (
 
     @NotNull
     @Column(name = "first_name")
@@ -28,5 +28,5 @@ open class Director (
     var id: Long? = null
 
     @OneToMany(mappedBy = "director")
-    open var movies: MutableSet<Movie>? = mutableSetOf()
+    var movies: MutableSet<Movie>? = mutableSetOf()
 }
