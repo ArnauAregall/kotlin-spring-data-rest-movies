@@ -56,7 +56,7 @@ class ActorRestRepositoryIT (
                 .andExpectAll(
                     jsonPath("$._embedded.actors.length()").value(actors.size),
                     jsonPath("$._embedded.actors[*].id",
-                        containsInAnyOrder(streamToIsMatcher(actors.stream().map { it.id.toInt() }))
+                        containsInAnyOrder(streamToIsMatcher(actors.stream().map { it.id!!.toInt() }))
                     ),
                     jsonPath("$._embedded.actors[*].first_name",
                         containsInAnyOrder(streamToIsMatcher(actors.stream().map(Actor::firstName)))
@@ -82,7 +82,7 @@ class ActorRestRepositoryIT (
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpectAll(
-                    jsonPath("$.id").value(actor.id.toInt()),
+                    jsonPath("$.id").value(actor.id!!.toInt()),
                     jsonPath("$.first_name").value(actor.firstName),
                     jsonPath("$.last_name").value(actor.lastName),
                     jsonPath("$.birth_date").value(actor.birthDate.toString()),
@@ -147,7 +147,7 @@ class ActorRestRepositoryIT (
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpectAll(
-                    jsonPath("$.id").value(actor.id.toInt()),
+                    jsonPath("$.id").value(actor.id!!.toInt()),
                     jsonPath("$.first_name").value("Pierce"),
                     jsonPath("$.last_name").value("Brosnan"),
                     jsonPath("$.birth_date").value("1953-05-16"),
@@ -169,7 +169,7 @@ class ActorRestRepositoryIT (
             mockMvc.perform(delete("${BASE_PATH}/${actor.id}"))
                 .andExpect(status().isNoContent)
 
-            assertThat(actorRestRepository.findById(actor.id)).isEmpty
+            assertThat(actorRestRepository.findById(actor.id!!)).isEmpty
         }
 
     }

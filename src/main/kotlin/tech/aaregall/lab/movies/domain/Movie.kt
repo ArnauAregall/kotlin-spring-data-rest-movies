@@ -27,7 +27,7 @@ open class Movie (
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = -1
+    var id: Long? = null
 
     @ManyToMany
     @JoinTable(
@@ -36,5 +36,5 @@ open class Movie (
         inverseJoinColumns = [JoinColumn(name = "character_id")]
     )
     @RestResource(path = "characters")
-    var characters: MutableSet<Character>? = mutableSetOf()
+    open var characters: MutableSet<Character>? = mutableSetOf()
 }

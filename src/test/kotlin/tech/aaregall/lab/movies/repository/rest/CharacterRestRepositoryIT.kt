@@ -54,7 +54,7 @@ class CharacterRestRepositoryIT(
                 .andExpectAll(
                     jsonPath("$._embedded.characters.length()").value(characters.size),
                     jsonPath("$._embedded.characters[*].id",
-                        containsInAnyOrder(streamToIsMatcher(characters.stream().map { it.id.toInt() }))
+                        containsInAnyOrder(streamToIsMatcher(characters.stream().map { it.id!!.toInt() }))
                     ),
                     jsonPath("$._embedded.characters[*].name",
                         containsInAnyOrder(streamToIsMatcher(characters.stream().map(Character::name)))
@@ -76,7 +76,7 @@ class CharacterRestRepositoryIT(
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpectAll(
-                    jsonPath("$.id").value(character.id.toInt()),
+                    jsonPath("$.id").value(character.id!!.toInt()),
                     jsonPath("$.name").value(character.name),
                     jsonPath("$._links").isNotEmpty,
                     jsonPath("$._links.self.href", containsString("${BASE_PATH}/${character.id}")),
@@ -134,7 +134,7 @@ class CharacterRestRepositoryIT(
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpectAll(
-                    jsonPath("$.id").value(character.id.toInt()),
+                    jsonPath("$.id").value(character.id!!.toInt()),
                     jsonPath("$.name").value("Auric Goldfinger")
                 )
         }
@@ -152,7 +152,7 @@ class CharacterRestRepositoryIT(
             mockMvc.perform(delete("${BASE_PATH}/${character.id}"))
                 .andExpect(status().isNoContent)
 
-            assertThat(characterRestRepository.findById(character.id)).isEmpty
+            assertThat(characterRestRepository.findById(character.id!!)).isEmpty
         }
 
     }

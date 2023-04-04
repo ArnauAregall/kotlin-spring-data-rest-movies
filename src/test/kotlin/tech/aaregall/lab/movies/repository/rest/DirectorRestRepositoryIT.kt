@@ -54,7 +54,7 @@ class DirectorRestRepositoryIT(
                 .andExpectAll(
                     jsonPath("$._embedded.directors.length()").value(directors.size),
                     jsonPath("$._embedded.directors[*].id",
-                        containsInAnyOrder(streamToIsMatcher(directors.stream().map{ it.id.toInt() }))
+                        containsInAnyOrder(streamToIsMatcher(directors.stream().map{ it.id!!.toInt() }))
                     ),
                     jsonPath("$._embedded.directors[*].first_name",
                         containsInAnyOrder(streamToIsMatcher(directors.stream().map(Director::firstName)))
@@ -79,7 +79,7 @@ class DirectorRestRepositoryIT(
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpectAll(
-                    jsonPath("$.id").value(director.id.toInt()),
+                    jsonPath("$.id").value(director.id!!.toInt()),
                     jsonPath("$.first_name").value(director.firstName),
                     jsonPath("$.last_name").value(director.lastName),
                     jsonPath("$._links").isNotEmpty,
@@ -139,7 +139,7 @@ class DirectorRestRepositoryIT(
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpectAll(
-                    jsonPath("$.id").value(director.id.toInt()),
+                    jsonPath("$.id").value(director.id!!.toInt()),
                     jsonPath("$.first_name").value("Martin"),
                     jsonPath("$.last_name").value("Campbell")
                 )
@@ -158,7 +158,7 @@ class DirectorRestRepositoryIT(
             mockMvc.perform(delete("${BASE_PATH}/${director.id}"))
                 .andExpect(status().isNoContent)
 
-            assertThat(directorRestRepository.findById(director.id)).isEmpty
+            assertThat(directorRestRepository.findById(director.id!!)).isEmpty
         }
 
     }

@@ -56,7 +56,7 @@ class MovieRestRepositoryIT(
                 .andExpectAll(
                     jsonPath("$._embedded.movies.length()").value(movies.size),
                     jsonPath("$._embedded.movies[*].id",
-                        containsInAnyOrder(streamToIsMatcher(movies.stream().map { it.id.toInt() }))
+                        containsInAnyOrder(streamToIsMatcher(movies.stream().map { it.id!!.toInt() }))
                     ),
                     jsonPath("$._embedded.movies[*].title",
                         containsInAnyOrder(streamToIsMatcher(movies.stream().map(Movie::title)))
@@ -82,7 +82,7 @@ class MovieRestRepositoryIT(
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpectAll(
-                    jsonPath("$.id").value(movie.id.toInt()),
+                    jsonPath("$.id").value(movie.id!!.toInt()),
                     jsonPath("$.title").value(movie.title),
                     jsonPath("$.release_date").value(movie.releaseDate.toString()),
                     jsonPath("$._links").isNotEmpty,
@@ -155,7 +155,7 @@ class MovieRestRepositoryIT(
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(APPLICATION_JSON))
                 .andExpectAll(
-                    jsonPath("$.id").value(movie.id.toInt()),
+                    jsonPath("$.id").value(movie.id!!.toInt()),
                     jsonPath("$.title").value("No Time To Die")
                 )
         }
@@ -174,7 +174,7 @@ class MovieRestRepositoryIT(
             mockMvc.perform(delete("${BASE_PATH}/${movie.id}"))
                 .andExpect(status().isNoContent)
 
-            assertThat(movieRestRepository.findById(movie.id)).isEmpty
+            assertThat(movieRestRepository.findById(movie.id!!)).isEmpty
         }
 
     }

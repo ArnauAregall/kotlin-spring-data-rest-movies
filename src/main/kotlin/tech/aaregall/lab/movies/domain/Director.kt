@@ -25,8 +25,8 @@ open class Director (
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = -1
+    var id: Long? = null
 
     @OneToMany(mappedBy = "director")
-    var movies: MutableSet<Movie>? = mutableSetOf()
+    open var movies: MutableSet<Movie>? = mutableSetOf()
 }

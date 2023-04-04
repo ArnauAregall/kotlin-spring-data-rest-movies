@@ -37,7 +37,7 @@ open class Actor (
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = -1
+    var id: Long? = null
 
     @ManyToMany
     @JoinTable(
@@ -45,7 +45,7 @@ open class Actor (
         joinColumns = [JoinColumn(name = "actor_id")],
         inverseJoinColumns = [JoinColumn(name = "character_id")]
     )
-    var characters: MutableSet<Character>? = mutableSetOf()
+    open var characters: MutableSet<Character>? = mutableSetOf()
 
     @JsonProperty("is_alive")
     private fun isAlive(): Boolean = isNull(deathDate)

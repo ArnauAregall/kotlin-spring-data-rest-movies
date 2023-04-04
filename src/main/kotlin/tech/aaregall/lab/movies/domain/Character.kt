@@ -23,10 +23,10 @@ open class Character (
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = -1
+    var id: Long? = null
 
     @ManyToMany(mappedBy = "characters")
-    var actors: MutableSet<Actor>? = mutableSetOf()
+    open var actors: MutableSet<Actor>? = mutableSetOf()
 
     @ManyToMany
     @JoinTable(
@@ -34,6 +34,6 @@ open class Character (
         joinColumns = [JoinColumn(name = "character_id")],
         inverseJoinColumns = [JoinColumn(name = "movie_id")]
     )
-    var movies: MutableSet<Movie>? = mutableSetOf()
+    open var movies: MutableSet<Movie>? = mutableSetOf()
 
 }
