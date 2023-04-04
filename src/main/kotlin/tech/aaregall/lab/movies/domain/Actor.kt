@@ -16,7 +16,7 @@ import java.util.Objects.isNull
 
 @Entity
 @Table(name = "actor")
-class Actor (
+open class Actor (
 
     @NotNull
     @Column(name = "first_name")
@@ -45,7 +45,7 @@ class Actor (
         joinColumns = [JoinColumn(name = "actor_id")],
         inverseJoinColumns = [JoinColumn(name = "character_id")]
     )
-    var characters: Collection<Character>? = mutableListOf()
+    var characters: MutableSet<Character>? = mutableSetOf()
 
     @JsonProperty("is_alive")
     private fun isAlive(): Boolean = isNull(deathDate)

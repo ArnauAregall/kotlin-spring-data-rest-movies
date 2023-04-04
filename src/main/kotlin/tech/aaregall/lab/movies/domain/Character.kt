@@ -13,7 +13,7 @@ import jakarta.validation.constraints.NotNull
 
 @Entity
 @Table(name = "character")
-class Character (
+open class Character (
 
     @NotNull
     @Column(name = "name")
@@ -26,7 +26,7 @@ class Character (
     var id: Long = -1
 
     @ManyToMany(mappedBy = "characters")
-    var actors: Collection<Actor>? = mutableListOf()
+    var actors: MutableSet<Actor>? = mutableSetOf()
 
     @ManyToMany
     @JoinTable(
@@ -34,6 +34,6 @@ class Character (
         joinColumns = [JoinColumn(name = "character_id")],
         inverseJoinColumns = [JoinColumn(name = "movie_id")]
     )
-    var movies: Collection<Movie>? = mutableListOf()
+    var movies: MutableSet<Movie>? = mutableSetOf()
 
 }
