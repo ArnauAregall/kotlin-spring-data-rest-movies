@@ -30,7 +30,6 @@ private const val BASE_PATH = "/api/characters"
 @CleanDatabase
 class CharacterRestRepositoryIT(
     @Autowired val mockMvc: MockMvc,
-    @Autowired val objectMapper: ObjectMapper,
     @Autowired val characterRestRepository: CharacterRestRepository) : AbstractIT() {
 
     @Nested
@@ -93,7 +92,7 @@ class CharacterRestRepositoryIT(
     inner class Post {
 
         @Test
-        fun `Should Create a Character` () {
+        fun `Should Create a Character` (@Autowired objectMapper: ObjectMapper) {
             val character = Character("Jaws")
 
             val result = mockMvc.perform(post(BASE_PATH)

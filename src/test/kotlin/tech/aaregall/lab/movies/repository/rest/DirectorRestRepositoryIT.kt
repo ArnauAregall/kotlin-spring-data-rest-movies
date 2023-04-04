@@ -30,7 +30,6 @@ private const val BASE_PATH = "/api/directors"
 @CleanDatabase
 class DirectorRestRepositoryIT(
     @Autowired val mockMvc: MockMvc,
-    @Autowired val objectMapper: ObjectMapper,
     @Autowired val directorRestRepository: DirectorRestRepository) : AbstractIT() {
 
     @Nested
@@ -96,7 +95,7 @@ class DirectorRestRepositoryIT(
     inner class Post {
 
         @Test
-        fun `Should Create a Director` () {
+        fun `Should Create a Director` (@Autowired objectMapper: ObjectMapper) {
             val director = Director("Terence", "Young")
 
             val result = mockMvc.perform(post(BASE_PATH)

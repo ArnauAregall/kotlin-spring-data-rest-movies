@@ -32,7 +32,6 @@ private const val BASE_PATH = "/api/actors"
 @CleanDatabase
 class ActorRestRepositoryIT (
     @Autowired val mockMvc: MockMvc,
-    @Autowired val objectMapper: ObjectMapper,
     @Autowired val actorRestRepository: ActorRestRepository): AbstractIT() {
 
     @Nested
@@ -102,7 +101,7 @@ class ActorRestRepositoryIT (
     inner class Post {
 
         @Test
-        fun `Should Create an Actor` () {
+        fun `Should Create an Actor` (@Autowired objectMapper: ObjectMapper) {
             val actor = Actor("Daniel", "Craig", LocalDate.of(1968, 3, 2), null)
 
             val result = mockMvc.perform(post(BASE_PATH)
