@@ -26,7 +26,7 @@ class Character (
     var id: Long = -1
 
     @ManyToMany(mappedBy = "characters")
-    lateinit var actors: Collection<Actor>
+    var actors: Collection<Actor>? = emptyList()
 
     @ManyToMany
     @JoinTable(
