@@ -2,7 +2,6 @@ package tech.aaregall.lab.movies.domain
 
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
-import org.springframework.data.rest.core.annotation.RestResource
 import java.time.LocalDate
 
 @Entity
@@ -20,7 +19,6 @@ class Movie (
     @NotNull
     @ManyToOne
     @JoinColumn(name = "director_id")
-    @RestResource(path = "director")
     var director: Director
 
 ) {
@@ -35,6 +33,5 @@ class Movie (
         joinColumns = [JoinColumn(name = "movie_id")],
         inverseJoinColumns = [JoinColumn(name = "character_id")]
     )
-    @RestResource(path = "characters")
     var characters: MutableSet<Character>? = mutableSetOf()
 }
