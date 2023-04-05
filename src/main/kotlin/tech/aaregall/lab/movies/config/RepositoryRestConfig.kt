@@ -18,7 +18,7 @@ class RepositoryRestConfig {
         return object : RepositoryRestConfigurer {
 
             override fun configureRepositoryRestConfiguration(config: RepositoryRestConfiguration?, cors: CorsRegistry?) {
-                config?.exposeIdsFor(Actor::class.java, Character::class.java, Director::class.java, Movie::class.java)
+                config!!.exposeIdsFor(Actor::class.java, Character::class.java, Director::class.java, Movie::class.java)
             }
 
         }
