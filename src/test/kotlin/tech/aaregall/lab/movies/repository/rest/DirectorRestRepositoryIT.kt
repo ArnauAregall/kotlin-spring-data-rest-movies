@@ -28,9 +28,9 @@ import java.util.stream.IntStream
 private const val BASE_PATH = "/api/directors"
 
 @CleanDatabase
-class DirectorRestRepositoryIT(
-    @Autowired val mockMvc: MockMvc,
-    @Autowired val directorRestRepository: DirectorRestRepository) : AbstractIT() {
+class DirectorRestRepositoryIT @Autowired constructor (
+    val mockMvc: MockMvc,
+    val directorRestRepository: DirectorRestRepository) : AbstractIT() {
 
     @Nested
     @DisplayName("GET $BASE_PATH")

@@ -29,10 +29,10 @@ import java.util.stream.IntStream
 private const val BASE_PATH = "/api/movies"
 
 @CleanDatabase
-class MovieRestRepositoryIT(
-    @Autowired val mockMvc: MockMvc,
-    @Autowired val movieRestRepository: MovieRestRepository,
-    @Autowired val directorRestRepository: DirectorRestRepository) : AbstractIT() {
+class MovieRestRepositoryIT @Autowired constructor (
+    val mockMvc: MockMvc,
+    val movieRestRepository: MovieRestRepository,
+    val directorRestRepository: DirectorRestRepository) : AbstractIT() {
 
     @Nested
     @DisplayName("GET $BASE_PATH")

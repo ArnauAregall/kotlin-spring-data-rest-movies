@@ -28,9 +28,9 @@ import java.util.stream.IntStream
 private const val BASE_PATH = "/api/characters"
 
 @CleanDatabase
-class CharacterRestRepositoryIT(
-    @Autowired val mockMvc: MockMvc,
-    @Autowired val characterRestRepository: CharacterRestRepository) : AbstractIT() {
+class CharacterRestRepositoryIT @Autowired constructor (
+    val mockMvc: MockMvc,
+    val characterRestRepository: CharacterRestRepository) : AbstractIT() {
 
     @Nested
     @DisplayName("GET $BASE_PATH")
