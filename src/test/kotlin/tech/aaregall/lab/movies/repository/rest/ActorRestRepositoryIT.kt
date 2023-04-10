@@ -39,7 +39,7 @@ class ActorRestRepositoryIT (
     inner class Get {
 
         @Test
-        fun `Should Get Actors paginated` () {
+        fun `Should find available Actors using pagination` () {
             val actors = IntStream.rangeClosed(1, 50)
                 .mapToObj {index -> actorRestRepository.save(
                     Actor( "FirstName $index", "LastName $index", LocalDate.now().minusYears(index.toLong()), null)

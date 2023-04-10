@@ -37,7 +37,7 @@ class CharacterRestRepositoryIT(
     inner class Get {
 
         @Test
-        fun `Should Get Characters paginated` () {
+        fun `Should find available Characters using pagination` () {
             val characters = IntStream.rangeClosed(1, 50)
                 .mapToObj {index -> characterRestRepository.save(
                     Character( "Character $index")

@@ -39,7 +39,7 @@ class MovieRestRepositoryIT(
     inner class Get {
 
         @Test
-        fun `Should Get Movies paginated` () {
+        fun `Should find available Movies using pagination` () {
             val director = directorRestRepository.save(Director("Director First Name", "Director Last Name"))
             val movies = IntStream.rangeClosed(1, 50)
                 .mapToObj {index -> movieRestRepository.save(

@@ -37,7 +37,7 @@ class DirectorRestRepositoryIT(
     inner class Get {
 
         @Test
-        fun `Should Get Directors paginated` () {
+        fun `Should find available Directors using pagination` () {
             val directors = IntStream.rangeClosed(1, 50)
                 .mapToObj {index -> directorRestRepository.save(
                     Director( "FirstName $index", "LastName $index")
