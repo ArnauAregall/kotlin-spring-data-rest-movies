@@ -18,12 +18,64 @@ import tech.aaregall.lab.movies.test.cleandb.CleanDatabase
 class JamesBondUseCaseIT(@Autowired val mockMvc: MockMvc) : AbstractIT() {
 
     @Test
-    fun `Should manage James Bond movies` () {
-        val directorLink = createAndReturnSelfHref("/api/directors",
+    fun `Should create Characters interpreted by Actors with HAL association links` () {
+        val pierceBrosnanLink = createAndReturnSelfHref("/api/actors",
             """
-                {"first_name": "Martin", "last_name": "Campbell"}
+                {"first_name": "Pierce", "last_name": "Brosnan", "birth_date": "1953-05-16"}
             """.trimIndent())
 
+        val danielCraigLink = createAndReturnSelfHref("/api/actors",
+            """
+                {"first_name": "Daniel", "last_name": "Craig", "birth_date": "1968-03-02"}
+            """.trimIndent())
+
+        val madsMikkelsenLink = createAndReturnSelfHref("/api/actors",
+            """
+                {"first_name": "Mads", "last_name": "Mikkelsen", "birth_date": "1965-11-22"}
+            """.trimIndent())
+
+        val jamesBondLink = createAndReturnSelfHref("/api/characters",
+            """
+                {"name": "James Bond", "actors": ["$pierceBrosnanLink", "$danielCraigLink"]}
+            """.trimIndent())
+
+        val leChiffreLink = createAndReturnSelfHref("/api/characters",
+            """
+                {"name": "Le Chiffre", "actors": ["$madsMikkelsenLink"]}
+            """.trimIndent())
+
+        performGet("$jamesBondLink/actors")
+            .andExpectAll(
+                jsonPath("$._embedded.actors.length()").value(2),
+                jsonPath("$._embedded.actors[*].first_name", containsInAnyOrder("Pierce", "Daniel")),
+                jsonPath("$._embedded.actors[*].last_name", containsInAnyOrder("Brosnan", "Craig"))
+            )
+
+        listOf(pierceBrosnanLink, danielCraigLink).forEach {
+            performGet("$it/characters")
+                .andExpectAll(
+                    jsonPath("$._embedded.characters.length()").value(1),
+                    jsonPath("$._embedded.characters[0].name").value("James Bond")
+                )
+        }
+
+        performGet("$leChiffreLink/actors")
+            .andExpectAll(
+                jsonPath("$._embedded.actors.length()").value(1),
+                jsonPath("$._embedded.actors[0].first_name").value("Mads"),
+                jsonPath("$._embedded.actors[0].last_name").value("Mikkelsen")
+            )
+
+        performGet("$madsMikkelsenLink/characters")
+            .andExpectAll(
+                jsonPath("$._embedded.characters.length()").value(1),
+                jsonPath("$._embedded.characters[0].name").value("Le Chiffre")
+            )
+    }
+
+
+    @Test
+    fun `Should create Movies directed by Directors, with Characters interpreted by Actors with HAL association links` () {
         val actor1Link = createAndReturnSelfHref("/api/actors",
             """
                 {"first_name": "Pierce", "last_name": "Brosnan", "birth_date": "1953-05-16"}
@@ -49,14 +101,25 @@ class JamesBondUseCaseIT(@Autowired val mockMvc: MockMvc) : AbstractIT() {
                 {"name": "Le Chiffre", "actors": ["$actor3Link"]}
             """.trimIndent())
 
+        val directorLink = createAndReturnSelfHref("/api/directors",
+            """
+                {"first_name": "Martin", "last_name": "Campbell"}
+            """.trimIndent())
+
         val movie1Link = createAndReturnSelfHref("/api/movies",
             """
-                {"title": "Goldeneye", "release_date": "1995-12-20", "director": "$directorLink", "characters": ["$character1Link"]}
+                {"title": "Goldeneye", 
+                "release_date": "1995-12-20", 
+                "director": "$directorLink", 
+                "characters": ["$character1Link"]}
             """.trimIndent())
 
         val movie2Link = createAndReturnSelfHref("/api/movies",
             """
-                {"title": "Casino Royale", "release_date": "2006-11-14", "director": "$directorLink", "characters": ["$character1Link", "$character2Link"]}
+                {"title": "Casino Royale", 
+                "release_date": "2006-11-14", 
+                "director": "$directorLink", 
+                "characters": ["$character1Link", "$character2Link"]}
             """.trimIndent())
 
         performGet(movie1Link)
@@ -85,7 +148,7 @@ class JamesBondUseCaseIT(@Autowired val mockMvc: MockMvc) : AbstractIT() {
                             .andExpectAll(
                                 jsonPath("$._embedded.actors.length()").value(2),
                                 jsonPath("$._embedded.actors[*].first_name", containsInAnyOrder("Pierce", "Daniel")),
-                                jsonPath("$._embedded.actors[*].last_name", containsInAnyOrder("Brosnan", "Craig")),
+                                jsonPath("$._embedded.actors[*].last_name", containsInAnyOrder("Brosnan", "Craig"))
                             )
                     }
             }
@@ -108,7 +171,7 @@ class JamesBondUseCaseIT(@Autowired val mockMvc: MockMvc) : AbstractIT() {
 
                 performGet(JsonPath.read(movieResponse, "$._links.characters.href"))
                     .andExpectAll(
-                        jsonPath("$._embedded.actors.length()").value(2),
+                        jsonPath("$._embedded.characters.length()").value(2),
                         jsonPath("$._embedded.characters[*].name", containsInAnyOrder("James Bond", "Le Chiffre")),
                     )
             }
@@ -122,15 +185,18 @@ class JamesBondUseCaseIT(@Autowired val mockMvc: MockMvc) : AbstractIT() {
             .andExpect(content().contentType(HAL_JSON))
     }
 
+    fun performPost(path: String, body: String) : ResultActions {
+        return mockMvc.perform(post(path)
+            .accept(HAL_JSON)
+            .content(body))
+            .andExpect(status().isCreated)
+            .andExpect(content().contentType(HAL_JSON))
+    }
+
     fun createAndReturnSelfHref(path: String, body: String): String {
         return JsonPath.read(
-            mockMvc.perform(post(path)
-                .accept(HAL_JSON)
-                .content(body))
-                .andExpect(status().isCreated)
-                .andExpect(content().contentType(HAL_JSON))
-                .andReturn().response.contentAsString
-            , "_links.self.href")
+            performPost(path, body)
+                .andReturn().response.contentAsString, "_links.self.href")
     }
 
 }
