@@ -25,7 +25,12 @@ class Character (
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
-    @ManyToMany(mappedBy = "characters")
+    @ManyToMany
+    @JoinTable(
+        name = "actor_character",
+        joinColumns = [JoinColumn(name = "character_id")],
+        inverseJoinColumns = [JoinColumn(name = "actor_id")]
+    )
     var actors: MutableSet<Actor>? = mutableSetOf()
 
     @ManyToMany
