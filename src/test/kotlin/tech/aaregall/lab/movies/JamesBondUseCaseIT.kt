@@ -1,6 +1,7 @@
 package tech.aaregall.lab.movies
 
 import com.jayway.jsonpath.JsonPath
+import net.minidev.json.JSONArray
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -76,53 +77,69 @@ class JamesBondUseCaseIT(@Autowired val mockMvc: MockMvc) : AbstractIT() {
 
     @Test
     fun `Should create Movies directed by Directors, with Characters interpreted by Actors with HAL association links` () {
-        val actor1Link = createAndReturnSelfHref("/api/actors",
+        // given
+        // Actors
+        val pierceBrosnanLink = createAndReturnSelfHref("/api/actors",
             """
                 {"first_name": "Pierce", "last_name": "Brosnan", "birth_date": "1953-05-16"}
             """.trimIndent())
 
-        val actor2Link = createAndReturnSelfHref("/api/actors",
+        val danielCraigLink = createAndReturnSelfHref("/api/actors",
             """
                 {"first_name": "Daniel", "last_name": "Craig", "birth_date": "1968-03-02"}
             """.trimIndent())
 
-        val actor3Link = createAndReturnSelfHref("/api/actors",
+        val madsMikkelsenLink = createAndReturnSelfHref("/api/actors",
             """
                 {"first_name": "Mads", "last_name": "Mikkelsen", "birth_date": "1965-11-22"}
             """.trimIndent())
 
-        val character1Link = createAndReturnSelfHref("/api/characters",
+        val seanBeanLink = createAndReturnSelfHref("/api/actors",
             """
-                {"name": "James Bond", "actors": ["$actor1Link", "$actor2Link"]}
+                {"first_name": "Sean", "last_name": "Bean", "birth_date": "1959-04-17"}
             """.trimIndent())
 
-        val character2Link = createAndReturnSelfHref("/api/characters",
+        // Characters
+        val jamesBondLink = createAndReturnSelfHref("/api/characters",
             """
-                {"name": "Le Chiffre", "actors": ["$actor3Link"]}
+                {"name": "James Bond", "actors": ["$pierceBrosnanLink", "$danielCraigLink"]}
             """.trimIndent())
 
+        val leChiffreLink = createAndReturnSelfHref("/api/characters",
+            """
+                {"name": "Le Chiffre", "actors": ["$madsMikkelsenLink"]}
+            """.trimIndent())
+
+        val alecTrevelyanLink = createAndReturnSelfHref("/api/characters",
+            """
+                {"name": "Alec Trevelyan", "actors": ["$seanBeanLink"]}
+            """.trimIndent())
+
+        // Director
         val directorLink = createAndReturnSelfHref("/api/directors",
             """
                 {"first_name": "Martin", "last_name": "Campbell"}
             """.trimIndent())
 
-        val movie1Link = createAndReturnSelfHref("/api/movies",
+        // Movies
+        val goldeneyeLink = createAndReturnSelfHref("/api/movies",
             """
                 {"title": "Goldeneye", 
                 "release_date": "1995-12-20", 
                 "director": "$directorLink", 
-                "characters": ["$character1Link"]}
+                "characters": ["$jamesBondLink", "$alecTrevelyanLink"]}
             """.trimIndent())
 
-        val movie2Link = createAndReturnSelfHref("/api/movies",
+        val casinoRoyaleLink = createAndReturnSelfHref("/api/movies",
             """
                 {"title": "Casino Royale", 
                 "release_date": "2006-11-14", 
                 "director": "$directorLink", 
-                "characters": ["$character1Link", "$character2Link"]}
+                "characters": ["$jamesBondLink", "$leChiffreLink"]}
             """.trimIndent())
 
-        performGet(movie1Link)
+        // when and then
+        performGet(goldeneyeLink)
             .andExpectAll(
                 jsonPath("$.id").isNotEmpty,
                 jsonPath("$.title").value("Goldeneye"),
@@ -140,20 +157,33 @@ class JamesBondUseCaseIT(@Autowired val mockMvc: MockMvc) : AbstractIT() {
 
                 performGet(JsonPath.read(movieResponse, "$._links.characters.href"))
                     .andExpectAll(
-                        jsonPath("$._embedded.characters.length()").value(1 ),
-                        jsonPath("$._embedded.characters[0].name").value("James Bond")
+                        jsonPath("$._embedded.characters.length()").value(2),
+                        jsonPath("$._embedded.characters[*].name", containsInAnyOrder("James Bond", "Alec Trevelyan"))
                     )
-                    .andDo {charactersResult ->
-                        performGet(JsonPath.read(charactersResult.response.contentAsString, "$._embedded.characters[0]._links.actors.href"))
+                    .andDo { charactersResult ->
+
+                        val charactersActorsLinks = JsonPath.read<JSONArray?>(charactersResult.response.contentAsString, "$._embedded.characters[*]._links.actors.href")
+                            .filterIsInstance<String>()
+                            .sorted()
+
+                        performGet(charactersActorsLinks[0])
                             .andExpectAll(
                                 jsonPath("$._embedded.actors.length()").value(2),
                                 jsonPath("$._embedded.actors[*].first_name", containsInAnyOrder("Pierce", "Daniel")),
                                 jsonPath("$._embedded.actors[*].last_name", containsInAnyOrder("Brosnan", "Craig"))
                             )
+
+                        performGet(charactersActorsLinks[1])
+                            .andExpectAll(
+                                jsonPath("$._embedded.actors.length()").value(1),
+                                jsonPath("$._embedded.actors[0].first_name").value("Sean"),
+                                jsonPath("$._embedded.actors[0].last_name").value("Bean")
+                            )
+
                     }
             }
 
-        performGet(movie2Link)
+        performGet(casinoRoyaleLink)
             .andExpectAll(
                 jsonPath("$.id").isNotEmpty,
                 jsonPath("$.title").value("Casino Royale"),
@@ -174,6 +204,27 @@ class JamesBondUseCaseIT(@Autowired val mockMvc: MockMvc) : AbstractIT() {
                         jsonPath("$._embedded.characters.length()").value(2),
                         jsonPath("$._embedded.characters[*].name", containsInAnyOrder("James Bond", "Le Chiffre")),
                     )
+                    .andDo { charactersResult ->
+
+                        val charactersActorsLinks = JsonPath.read<JSONArray?>(charactersResult.response.contentAsString, "$._embedded.characters[*]._links.actors.href")
+                            .filterIsInstance<String>()
+                            .sorted()
+
+                        performGet(charactersActorsLinks[0])
+                            .andExpectAll(
+                                jsonPath("$._embedded.actors.length()").value(2),
+                                jsonPath("$._embedded.actors[*].first_name", containsInAnyOrder("Pierce", "Daniel")),
+                                jsonPath("$._embedded.actors[*].last_name", containsInAnyOrder("Brosnan", "Craig"))
+                            )
+
+                        performGet(charactersActorsLinks[1])
+                            .andExpectAll(
+                                jsonPath("$._embedded.actors.length()").value(1),
+                                jsonPath("$._embedded.actors[0].first_name").value("Mads"),
+                                jsonPath("$._embedded.actors[0].last_name").value("Mikkelsen")
+                            )
+
+                    }
             }
 
     }
