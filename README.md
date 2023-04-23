@@ -36,7 +36,7 @@ $ sdk use java 22.3.r17-grl
 ./gradlew bootRun
 ````
 
-*Note: by default requires Postgres to run locally on port 5431.*
+*Note: by default requires Postgres to run locally on port 5432.*
 
 ### Native version
 
@@ -44,7 +44,7 @@ $ sdk use java 22.3.r17-grl
 ./gradlew nativeRun
 ````
 
-*Note: by default requires Postgres to run locally on port 5431.*
+*Note: by default requires Postgres to run locally on port 5432.*
 
 
 ### Docker
