@@ -54,8 +54,7 @@ tasks.withType<Test> {
 
 tasks.withType<BootBuildImage> {
 	imageName.set("${project.group}/${rootProject.name}")
-	// distro-less image for GraalVM that supports ARM64 arch https://github.com/dashaun/paketo-arm64
-	builder.set("dashaun/builder:tiny")
+	builder.set("${project.properties["buildpackImage"]}")
 }
 
 allOpen {
