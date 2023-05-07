@@ -1,5 +1,6 @@
 package tech.aaregall.lab.movies.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -11,6 +12,7 @@ import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotNull
+import org.hibernate.annotations.Formula
 import java.time.LocalDate
 import java.util.Objects.isNull
 
@@ -49,5 +51,9 @@ class Actor (
 
     @JsonProperty("is_alive")
     private fun isAlive(): Boolean = isNull(deathDate)
+
+    @JsonIgnore
+    @Formula("death_date IS NULL")
+    private var alive: Boolean? = null
 
 }

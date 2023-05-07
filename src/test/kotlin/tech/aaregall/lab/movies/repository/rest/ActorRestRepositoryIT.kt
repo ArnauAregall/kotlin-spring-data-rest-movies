@@ -3,8 +3,11 @@ package tech.aaregall.lab.movies.repository.rest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.Assertions.assertThat
+import org.hamcrest.Matchers.contains
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.containsString
+import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.not
 import org.hamcrest.Matchers.notNullValue
 import org.hamcrest.Matchers.nullValue
 import org.junit.jupiter.api.DisplayName
@@ -92,6 +95,181 @@ class ActorRestRepositoryIT @Autowired constructor (
                     jsonPath("$._links.actor.href", containsString("${BASE_PATH}/${actor.id}")),
                     jsonPath("$._links.characters.href", containsString("${BASE_PATH}/${actor.id}/characters"))
                 )
+        }
+
+        @Nested
+        @DisplayName("GET $BASE_PATH with QueryDSL filters")
+        inner class Filter {
+
+            @Test
+            fun `Should filter all Actors by first and last name` () {
+                val actor1 = actorRestRepository.save(Actor("Roger", "Moore",
+                    LocalDate.of(1927, 10, 14), LocalDate.of(2017, 5, 23)))
+
+                val actor2 = actorRestRepository.save(Actor("George", "Lazenby",
+                    LocalDate.of(1939, 9, 5), null))
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("firstName", "rOgEr"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.actors.length()").value(1),
+                        jsonPath("$._embedded.actors[0].id").value(actor1.id!!.toInt()),
+                        jsonPath("$._embedded.actors[0].first_name").value(actor1.firstName),
+                        jsonPath("$._embedded.actors[0].last_name").value(actor1.lastName),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("lastName", "laZenbY"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.actors.length()").value(1),
+                        jsonPath("$._embedded.actors[0].id").value(actor2.id!!.toInt()),
+                        jsonPath("$._embedded.actors[0].first_name").value(actor2.firstName),
+                        jsonPath("$._embedded.actors[0].last_name").value(actor2.lastName),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+            }
+
+            @Test
+            fun `Should filter all Actors by aliveness` () {
+                val actor1 = actorRestRepository.save(Actor("Roger", "Moore",
+                    LocalDate.of(1927, 10, 14), LocalDate.of(2017, 5, 23)))
+
+                val actor2 = actorRestRepository.save(Actor("George", "Lazenby",
+                    LocalDate.of(1939, 9, 5), null))
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .queryParam("alive", "false"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.actors.length()").value(1),
+                        jsonPath("$._embedded.actors[0].id").value(actor1.id!!.toInt()),
+                        jsonPath("$._embedded.actors[0].is_alive").value(false),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("alive", "true"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.actors.length()").value(1),
+                        jsonPath("$._embedded.actors[0].id").value(actor2.id!!.toInt()),
+                        jsonPath("$._embedded.actors[0].is_alive").value(true),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+            }
+
+            @Test
+            fun `Should filter all Actors by birth date` () {
+                val actor = actorRestRepository.save(Actor("Daniel", "Craig",
+                    LocalDate.of(1968, 3, 2), null))
+
+                actorRestRepository.save(Actor("Sean", "Connery",
+                    LocalDate.of(1930, 8, 25), LocalDate.of(2020, 10, 31)))
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .queryParam("birthDate", "1968-03-02"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.actors.length()").value(1),
+                        jsonPath("$._embedded.actors[0].id").value(actor.id!!.toInt()),
+                        jsonPath("$._embedded.actors[0].birth_date").value("1968-03-02"),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+            }
+
+            @Test
+            fun `Should filter all Actors by death date` () {
+                val actor = actorRestRepository.save(Actor("Sean", "Connery",
+                    LocalDate.of(1930, 8, 25), LocalDate.of(2020, 10, 31)))
+
+                actorRestRepository.save(Actor("Daniel", "Craig",
+                    LocalDate.of(1968, 3, 2), null))
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .queryParam("deathDate", "2020-10-31"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.actors.length()").value(1),
+                        jsonPath("$._embedded.actors[0].id").value(actor.id!!.toInt()),
+                        jsonPath("$._embedded.actors[0].death_date").value("2020-10-31"),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+            }
+
+            @Test
+            fun `Should filter all Actors by birth date between` () {
+                val actor1 = actorRestRepository.save(Actor("Roger", "Moore",
+                    LocalDate.of(1927, 10, 14), LocalDate.of(2017, 5, 23)))
+
+                val actor2 = actorRestRepository.save(Actor("Sean", "Connery",
+                    LocalDate.of(1930, 8, 25), LocalDate.of(2020, 10, 31)))
+
+                val actor3 = actorRestRepository.save(Actor("Pierce", "Brosnan",
+                    LocalDate.of(1953, 5, 16), null))
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .queryParam("birthDate_between", "1925-01-01", "1930-12-31"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.actors.length()").value(2),
+                        jsonPath("$._embedded.actors[*].id",
+                            containsInAnyOrder(`is`(actor1.id!!.toInt()), `is`(actor2.id!!.toInt()))
+                        ),
+                        jsonPath("$._embedded.actors[*].id", not(contains(actor3.id!!.toInt()))),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(2),
+                    )
+            }
+
+            @Test
+            fun `Should filter all Actors by death date between` () {
+                val actor1 = actorRestRepository.save(Actor("Roger", "Moore",
+                    LocalDate.of(1927, 10, 14), LocalDate.of(2017, 5, 23)))
+
+                val actor2 = actorRestRepository.save(Actor("Sean", "Connery",
+                    LocalDate.of(1930, 8, 25), LocalDate.of(2020, 10, 31)))
+
+                val actor3 = actorRestRepository.save(Actor("Pierce", "Brosnan",
+                    LocalDate.of(1953, 5, 16), null))
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .queryParam("deathDate_between", "2015-01-01", "2020-12-31"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.actors.length()").value(2),
+                        jsonPath("$._embedded.actors[*].id",
+                            containsInAnyOrder(`is`(actor1.id!!.toInt()), `is`(actor2.id!!.toInt()))
+                        ),
+                        jsonPath("$._embedded.actors[*].id", not(contains(actor3.id!!.toInt()))),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(2),
+                    )
+            }
         }
 
     }
