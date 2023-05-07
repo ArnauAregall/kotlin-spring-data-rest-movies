@@ -111,7 +111,7 @@ class ActorRestRepositoryIT @Autowired constructor (
 
                 mockMvc.perform(get(BASE_PATH)
                     .accept(HAL_JSON)
-                    .param("firstName", "rOgEr"))
+                    .param("firstName", "rOgE"))
                     .andExpect(status().isOk)
                     .andExpect(content().contentType(HAL_JSON))
                     .andExpectAll(
@@ -125,7 +125,7 @@ class ActorRestRepositoryIT @Autowired constructor (
 
                 mockMvc.perform(get(BASE_PATH)
                     .accept(HAL_JSON)
-                    .param("lastName", "laZenbY"))
+                    .param("lastName", "eNbY"))
                     .andExpect(status().isOk)
                     .andExpect(content().contentType(HAL_JSON))
                     .andExpectAll(
