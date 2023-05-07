@@ -10,7 +10,6 @@ import tech.aaregall.lab.movies.repository.querydsl.QuerydslRepository
 interface ActorRestRepository : QuerydslRepository<Actor, Long, QActor> {
 
     override fun customizeBindings(bindings: QuerydslBindings, root: QActor) {
-        bindings.including(root.firstName, root.lastName, root.birthDate, root.deathDate, root.alive)
         bindDateBetween(bindings, root.birthDate)
         bindDateBetween(bindings, root.deathDate)
     }

@@ -38,14 +38,15 @@ interface QuerydslRepository<T, ID, Q : EntityPath<T>> : JpaRepository<T, ID>, Q
     }
 
     /**
-     * Binds the provided datePath with the alias "path_between" to be able to filter by date paths whose value is
-     * between two dates.
+     * Binds the provided datePath to be able to filter by a date range "between" likewise.
      * @param bindings the bindings.
      * @param datePath the date path to bind to between.
      */
     fun <C : Comparable<C>> bindDateBetween(bindings: QuerydslBindings, datePath: DatePath<C>) {
-        bindings.bind(datePath).`as`("${datePath.metadata.name}_between")
-            .all { path, values -> if (values.size == 2) Optional.of(path.between(values.first(), values.last())) else Optional.of(path.eq(values.first()))}
+        bindings.bind(datePath).all { path, values ->
+            if (values.size == 2) Optional.of(path.between(values.first(), values.last()))
+            else Optional.of(path.eq(values.first()))
+        }
     }
 
 }

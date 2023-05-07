@@ -230,7 +230,7 @@ class ActorRestRepositoryIT @Autowired constructor (
 
                 mockMvc.perform(get(BASE_PATH)
                     .accept(HAL_JSON)
-                    .queryParam("birthDate_between", "1925-01-01", "1930-12-31"))
+                    .queryParam("birthDate", "1925-01-01", "1930-12-31"))
                     .andExpect(status().isOk)
                     .andExpect(content().contentType(HAL_JSON))
                     .andExpectAll(
@@ -257,7 +257,7 @@ class ActorRestRepositoryIT @Autowired constructor (
 
                 mockMvc.perform(get(BASE_PATH)
                     .accept(HAL_JSON)
-                    .queryParam("deathDate_between", "2015-01-01", "2020-12-31"))
+                    .queryParam("deathDate", "2015-01-01", "2020-12-31"))
                     .andExpect(status().isOk)
                     .andExpect(content().contentType(HAL_JSON))
                     .andExpectAll(
