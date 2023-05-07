@@ -2,8 +2,12 @@ package tech.aaregall.lab.movies.repository.rest
 
 import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.Assertions.assertThat
+import org.hamcrest.Matchers
+import org.hamcrest.Matchers.contains
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.containsString
+import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.not
 import org.hamcrest.Matchers.notNullValue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -93,6 +97,152 @@ class MovieRestRepositoryIT @Autowired constructor (
                 )
         }
 
+        @Nested
+        @DisplayName("GET $BASE_PATH with QueryDSL filters")
+        inner class Filter {
+
+            @Test
+            fun `Should filter all Movies by title`() {
+                val director = directorRestRepository.save(Director("Martin", "Campbell"))
+
+                val movie1 = movieRestRepository.save(Movie("GoldenEye", LocalDate.of(1997, 8, 23), director))
+                val movie2 = movieRestRepository.save(Movie("Casino Royale", LocalDate.of(2006, 11, 16), director))
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("title", "eye"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.movies.length()").value(1),
+                        jsonPath("$._embedded.movies[0].id").value(movie1.id!!.toInt()),
+                        jsonPath("$._embedded.movies[0].title").value(movie1.title),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("title", "RoYaL"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.movies.length()").value(1),
+                        jsonPath("$._embedded.movies[0].id").value(movie2.id!!.toInt()),
+                        jsonPath("$._embedded.movies[0].title").value(movie2.title),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+
+            }
+
+            @Test
+            fun `Should filter all Movies by release date`() {
+                val director = directorRestRepository.save(Director("Martin", "Campbell"))
+
+                val movie1 = movieRestRepository.save(Movie("GoldenEye", LocalDate.of(1997, 8, 23), director))
+                val movie2 = movieRestRepository.save(Movie("Casino Royale", LocalDate.of(2006, 11, 16), director))
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("releaseDate", "1997-08-23"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.movies.length()").value(1),
+                        jsonPath("$._embedded.movies[0].id").value(movie1.id!!.toInt()),
+                        jsonPath("$._embedded.movies[0].release_date").value(movie1.releaseDate.toString()),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("releaseDate", "2006-11-16"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.movies.length()").value(1),
+                        jsonPath("$._embedded.movies[0].id").value(movie2.id!!.toInt()),
+                        jsonPath("$._embedded.movies[0].release_date").value(movie2.releaseDate.toString()),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+
+            }
+
+            @Test
+            fun `Should filter all Movies by release date between`() {
+                val director = directorRestRepository.save(Director("Martin", "Campbell"))
+
+                val movie1 = movieRestRepository.save(Movie("GoldenEye", LocalDate.of(1997, 8, 23), director))
+                val movie2 = movieRestRepository.save(Movie("Casino Royale", LocalDate.of(2006, 11, 16), director))
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("releaseDate", "1995-01-01", "2000-12-01"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.movies.length()").value(1),
+                        jsonPath("$._embedded.movies[0].id").value(movie1.id!!.toInt()),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("releaseDate", "2005-01-01", "2010-12-31"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.movies.length()").value(1),
+                        jsonPath("$._embedded.movies[0].id").value(movie2.id!!.toInt()),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+
+            }
+
+            @Test
+            fun `Should filter all Movies by Director first name and last name`() {
+                val director1 = directorRestRepository.save(Director("Martin", "Campbell"))
+                val director2 = directorRestRepository.save(Director("Sam", "Mendes"))
+
+                val movie1 = movieRestRepository.save(Movie("GoldenEye", LocalDate.of(1997, 8, 23), director1))
+                val movie2 = movieRestRepository.save(Movie("Casino Royale", LocalDate.of(2006, 11, 16), director1))
+                val movie3 = movieRestRepository.save(Movie("Skyfall", LocalDate.of(2012, 10, 31), director2))
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("director.firstName", "marti"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.movies.length()").value(2),
+                        jsonPath("$._embedded.movies[*].id",
+                            containsInAnyOrder(`is`(movie1.id!!.toInt()), `is`(movie2.id!!.toInt()))
+                        ),
+                        jsonPath("$._embedded.movies[*].id", not(contains(movie3.id!!.toInt()))),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(2),
+                    )
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("director.lastName", "Mende"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.movies.length()").value(1),
+                        jsonPath("$._embedded.movies[0].id").value(movie3.id!!.toInt()),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+            }
+
+        }
+
     }
 
     @Nested
@@ -103,7 +253,7 @@ class MovieRestRepositoryIT @Autowired constructor (
         fun `Should Create a Movie` () {
             val director = directorRestRepository.save(Director("Martin", "Cambpell"))
 
-            val movie = Movie("Casino Royale", LocalDate.of(2066, 11, 16), director)
+            val movie = Movie("Casino Royale", LocalDate.of(2006, 11, 16), director)
 
             val directorLink = JsonPath.read<String>(
                 mockMvc.perform(get("/api/directors/${director.id}")).andReturn().response.contentAsString, "$._links.self.href")
