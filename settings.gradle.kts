@@ -1,3 +1,5 @@
+rootProject.name = "kotlin-spring-data-rest-movies"
+
 pluginManagement {
 	repositories {
 		maven { url = uri("https://repo.spring.io/milestone") }
@@ -18,6 +20,6 @@ pluginManagement {
 		kotlin("jvm") version kotlinVersion
 		kotlin("plugin.spring") version kotlinVersion
 		kotlin("plugin.jpa") version kotlinVersion
+		kotlin("kapt") version kotlinVersion
 	}
 }
-rootProject.name = "kotlin-spring-data-rest-movies"
