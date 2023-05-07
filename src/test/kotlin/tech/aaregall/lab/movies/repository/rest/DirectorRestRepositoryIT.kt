@@ -88,6 +88,47 @@ class DirectorRestRepositoryIT @Autowired constructor (
                 )
         }
 
+        @Nested
+        @DisplayName("GET $BASE_PATH with QueryDSL filters")
+        inner class Filter {
+
+            @Test
+            fun `Should filter all Directors by first and last name` () {
+                val director1 = directorRestRepository.save(Director("Terence", "Young"))
+
+                val director2 = directorRestRepository.save(Director("Martin", "Campbell"))
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("firstName", "teRenC"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.directors.length()").value(1),
+                        jsonPath("$._embedded.directors[0].id").value(director1.id!!.toInt()),
+                        jsonPath("$._embedded.directors[0].first_name").value(director1.firstName),
+                        jsonPath("$._embedded.directors[0].last_name").value(director1.lastName),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("lastName", "caMpbE"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.directors.length()").value(1),
+                        jsonPath("$._embedded.directors[0].id").value(director2.id!!.toInt()),
+                        jsonPath("$._embedded.directors[0].first_name").value(director2.firstName),
+                        jsonPath("$._embedded.directors[0].last_name").value(director2.lastName),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+            }
+
+        }
+
     }
 
     @Nested
