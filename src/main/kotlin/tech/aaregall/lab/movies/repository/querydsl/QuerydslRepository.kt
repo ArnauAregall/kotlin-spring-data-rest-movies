@@ -38,7 +38,8 @@ interface QuerydslRepository<T, ID, Q : EntityPath<T>> : JpaRepository<T, ID>, Q
     }
 
     /**
-     * Binds the provided datePath as "path_between" to filter between two dates.
+     * Binds the provided datePath with the alias "path_between" to be able to filter by date paths whose value is
+     * between two dates.
      * @param bindings the bindings.
      * @param datePath the date path to bind to between.
      */
