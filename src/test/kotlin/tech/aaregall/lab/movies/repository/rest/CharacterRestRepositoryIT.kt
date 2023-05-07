@@ -5,6 +5,7 @@ import com.jayway.jsonpath.JsonPath
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.containsString
+import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.notNullValue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -83,6 +84,49 @@ class CharacterRestRepositoryIT @Autowired constructor (
                     jsonPath("$._links.actors.href", containsString("${BASE_PATH}/${character.id}/actors")),
                     jsonPath("$._links.movies.href", containsString("${BASE_PATH}/${character.id}/movies"))
                 )
+        }
+
+        @Nested
+        @DisplayName("GET $BASE_PATH with QueryDSL filters")
+        inner class Filter {
+
+            @Test
+            fun `Should filter all Characters by name` () {
+                val character1 = characterRestRepository.save(Character("James Bond"))
+                val character2 = characterRestRepository.save(Character("M"))
+                val character3 = characterRestRepository.save(Character("Le Chiffre"))
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("name", "m"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.characters.length()").value(2),
+                        jsonPath("$._embedded.characters[*].id",
+                            containsInAnyOrder(`is`(character1.id!!.toInt()), `is`(character2.id!!.toInt()))
+                        ),
+                        jsonPath("$._embedded.characters[*].name",
+                            containsInAnyOrder(`is`(character1.name), `is`(character2.name))
+                        ),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(2),
+                    )
+
+                mockMvc.perform(get(BASE_PATH)
+                    .accept(HAL_JSON)
+                    .param("name", "cHiF"))
+                    .andExpect(status().isOk)
+                    .andExpect(content().contentType(HAL_JSON))
+                    .andExpectAll(
+                        jsonPath("$._embedded.characters.length()").value(1),
+                        jsonPath("$._embedded.characters[0].id").value(character3.id!!.toInt()),
+                        jsonPath("$._embedded.characters[0].name").value(character3.name),
+                        jsonPath("$.page").isNotEmpty,
+                        jsonPath("$.page.total_elements").value(1),
+                    )
+            }
+
         }
 
     }
