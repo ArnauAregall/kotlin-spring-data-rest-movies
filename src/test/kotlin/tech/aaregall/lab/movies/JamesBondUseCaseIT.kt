@@ -3,6 +3,7 @@ package tech.aaregall.lab.movies
 import com.jayway.jsonpath.JsonPath
 import net.minidev.json.JSONArray
 import org.hamcrest.Matchers.containsInAnyOrder
+import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.hateoas.MediaTypes.HAL_JSON
@@ -227,6 +228,83 @@ class JamesBondUseCaseIT(@Autowired val mockMvc: MockMvc) : AbstractIT() {
                     }
             }
 
+    }
+
+    @Test
+    fun `Should filter Actors by the name of the Director that directed the Movies where they played a Character` () {
+        // Director
+        val directorLink = createAndReturnSelfHref("/api/directors",
+            """
+                {"first_name": "Martin", "last_name": "Campbell"}
+            """.trimIndent())
+
+        // Actors
+        val pierceBrosnanLink = createAndReturnSelfHref("/api/actors",
+            """
+                {"first_name": "Pierce", "last_name": "Brosnan", "birth_date": "1953-05-16"}
+            """.trimIndent())
+
+        val danielCraigLink = createAndReturnSelfHref("/api/actors",
+            """
+                {"first_name": "Daniel", "last_name": "Craig", "birth_date": "1968-03-02"}
+            """.trimIndent())
+
+        val evaGreenLink = createAndReturnSelfHref("/api/actors",
+            """
+                {"first_name": "Eva", "last_name": "Green", "birth_date": "1980-07-06"}
+            """.trimIndent())
+
+        val judiDenchLink = createAndReturnSelfHref("/api/actors",
+            """
+                {"first_name": "Judi", "last_name": "Dench", "birth_date": "1934-12-09"}
+            """.trimIndent())
+
+        // Characters
+        val jamesBondLink = createAndReturnSelfHref("/api/characters",
+            """
+                {"name": "James Bond", "actors": ["$pierceBrosnanLink", "$danielCraigLink"]}
+            """.trimIndent())
+
+        val vesperLyndLink = createAndReturnSelfHref("/api/characters",
+            """
+                {"name": "Vesper Lynd", "actors": ["$evaGreenLink"]}
+            """.trimIndent())
+
+        val mLink = createAndReturnSelfHref("/api/characters",
+            """
+                {"name": "M", "actors": ["$judiDenchLink"]}
+            """.trimIndent())
+
+        // Movies
+        performPost("/api/movies",
+            """
+                {"title": "Goldeneye", 
+                "release_date": "1995-12-20", 
+                "director": "$directorLink", 
+                "characters": ["$jamesBondLink", "$mLink"]}
+            """.trimIndent())
+
+        performPost("/api/movies",
+            """
+                {"title": "Casino Royale", 
+                "release_date": "2006-11-14", 
+                "director": "$directorLink", 
+                "characters": ["$jamesBondLink", "$mLink", "$vesperLyndLink"]}
+            """.trimIndent())
+
+        mockMvc.perform(get("/api/actors")
+            .queryParam("characters.movies.directors.firstName", "Martin")
+            .queryParam("characters.movies.directors.lastName", "Campbell")
+            .accept(HAL_JSON))
+            .andExpect(status().isOk)
+            .andExpectAll(
+                jsonPath("$._embedded.actors.length()").value(4),
+                jsonPath("$._embedded.actors[*]._links.self.href",
+                    containsInAnyOrder(`is`(pierceBrosnanLink), `is`(danielCraigLink), `is`(evaGreenLink), `is`(judiDenchLink))
+                ),
+                jsonPath("$.page").isNotEmpty,
+                jsonPath("$.page.total_elements").value(4),
+            )
     }
 
     fun performGet(path: String): ResultActions {
