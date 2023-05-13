@@ -231,7 +231,7 @@ class JamesBondUseCaseIT(@Autowired val mockMvc: MockMvc) : AbstractIT() {
     }
 
     @Test
-    fun `Should filter Actors by the name of the Director that directed the Movies where they played a Character` () {
+    fun `Should filter Actors by birth date between and the name of the Director that directed the Movies where they played a Character` () {
         // Director
         val directorLink = createAndReturnSelfHref("/api/directors",
             """
@@ -292,6 +292,7 @@ class JamesBondUseCaseIT(@Autowired val mockMvc: MockMvc) : AbstractIT() {
                 "characters": ["$jamesBondLink", "$mLink", "$vesperLyndLink"]}
             """.trimIndent())
 
+        // Get all Actors that appeared in a Martin Campbell movie
         mockMvc.perform(get("/api/actors")
             .queryParam("characters.movies.directors.firstName", "Martin")
             .queryParam("characters.movies.directors.lastName", "Campbell")
@@ -304,6 +305,20 @@ class JamesBondUseCaseIT(@Autowired val mockMvc: MockMvc) : AbstractIT() {
                 ),
                 jsonPath("$.page").isNotEmpty,
                 jsonPath("$.page.total_elements").value(4),
+            )
+
+        // Get Actors born in the '60s that appeared in a Martin Campbell movie
+        mockMvc.perform(get("/api/actors")
+            .queryParam("characters.movies.directors.firstName", "Martin")
+            .queryParam("characters.movies.directors.lastName", "Campbell")
+            .queryParam("birthDate", "1960-01-01", "1969-12-31")
+            .accept(HAL_JSON))
+            .andExpect(status().isOk)
+            .andExpectAll(
+                jsonPath("$._embedded.actors.length()").value(1),
+                jsonPath("$._embedded.actors[0]._links.self.href").value(danielCraigLink),
+                jsonPath("$.page").isNotEmpty,
+                jsonPath("$.page.total_elements").value(1),
             )
     }
 
