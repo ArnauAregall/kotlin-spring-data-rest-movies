@@ -5,10 +5,16 @@ Demo project to showcase how to build a REST HAL API application using:
 - Kotlin
 - Gradle
 - Spring Boot 3
+- Querydsl
 - JPA
 - Flyway
 - PostgreSQL
 - Docker & Testcontainers
+
+Articles that were written based in this project, in order:
+
+- [Building and testing a REST HAL API using Kotlin, Spring Data REST and JPA](https://aregall.tech/building-and-testing-a-rest-hal-api-using-kotlin-spring-data-rest-and-jpa)
+- [Integration between Querydsl and Spring Data REST using Kotlin, Gradle and Spring Boot 3](https://aregall.tech/integration-between-querydsl-and-spring-data-rest-using-kotlin-gradle-and-spring-boot-3)
 
 ----
 
